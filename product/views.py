@@ -1,3 +1,4 @@
+from functools import total_ordering
 from sys import exec_prefix
 
 from .models import Category, Product, Review
@@ -12,13 +13,58 @@ from .serializers import (
     ReviewListSerializer,
     ReviewDetailSerializer
 )
+#дз2
+@api_view(['GET'])
+def product_reviews_api_view(request):
+    products = Product.objects.all()
 
+    data = []
+
+    for product in products:
+        reviews = product.review_set.all()
+
+        reviews_list = []
+        total_stars = 0
+
+        for review in reviews:
+            reviews_list.append({
+                'id': review.id,
+                'text': review.text,
+                'stars': review.stars
+            })
+            total_stars += review.stars
+
+        # средний рейтинг
+        rating = 0
+        if reviews.count() > 0:
+            rating = total_stars / reviews.count()
+
+        data.append({
+            'id': product.id,
+            'title': product.title,
+            'price': product.price,
+            'reviews': reviews_list,
+            'rating': round(rating, 2)
+        })
+
+    return Response(data)
+
+
+#дз1
 @api_view(['GET'])
 def category_list_api_view(request):
     categories = Category.objects.all()
 
-    list_ = CategoryListSerializer(categories, many=True).data
-    return Response(data= list_, status=status.HTTP_200_OK)
+    data = []
+    for category in categories:
+        product_count = category.product_set.count()
+        data.append({
+            'id': category.id,
+            'name': category.name,
+            'product_count': product_count
+        })
+
+    return Response(data)
 
 @api_view(['GET'])
 def category_detail_api_view(request, id):
@@ -62,3 +108,8 @@ def review_detail_api_view(request, id):
         return Response(status=status.HTTP_404_NOT_FOUND)
     data = ReviewDetailSerializer(review, many=False).data
     return Response(data=data)
+
+
+
+
+
