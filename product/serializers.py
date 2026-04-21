@@ -7,7 +7,6 @@ class CategoryListSerializer(serializers.ModelSerializer):
         model = Category
         fields = 'id name'.split()
 
-
 class CategoryDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
@@ -24,6 +23,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         model = Product
         fields = '__all__'
 
+
 class ReviewListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
@@ -33,10 +33,12 @@ class ReviewListSerializer(serializers.ModelSerializer):
 class ReviewDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = Review
-        fields = '__all__'
+        fields = 'text product'.split()
 
-
-
+class ReviewCreateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Review
+        fields = 'text product stars'.split()
 
 class CategoryValidateSerializer(serializers.Serializer):
     name = serializers.CharField(required=True, min_length=2, max_length=255)
@@ -46,7 +48,7 @@ class ProductValidateSerializer(serializers.Serializer):
     title = serializers.CharField(required=True, min_length=2, max_length=255)
     description = serializers.CharField(required=True, min_length=2, max_length=255)
     price = serializers.DecimalField(max_digits=10, decimal_places=2)
-    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  # хотела спросить вместо форинкей используем лист как на классном
+    category = serializers.PrimaryKeyRelatedField(queryset=Category.objects.all())  
 
     def validate_category(self, category):
         if not Category.objects.filter(id=category.id).exists():
